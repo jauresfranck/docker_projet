@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  # Nom de notre service 
+  api-devops:
+    # On dit à Docker de construire l'image à partir du Dockerfile dans le dossier courant (.)
+    build: .
+    # Nom du conteneur une fois lancé
+    container_name: mon_app_devops
+    # On relie le port 3000 de ton ordinateur au port 3000 du conteneur
+    ports:
+      - "3000:3000"
+    # On peut passer des variables d'environnement ici
+    environment:
+      - PORT=3000
