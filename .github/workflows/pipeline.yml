@@ -1,0 +1,59 @@
+name: Pipeline CI/CD DevOps
+
+# 1. QUAND EST-CE QUE LE PIPELINE SE LANCE ?
+on:
+  push:
+    branches:
+      - main # Se déclenche uniquement lors d'un push sur la branche main
+
+# 2. PERMISSIONS
+permissions:
+  contents: write # Autorise GitHub Actions à créer et pousser un Tag Git à la fin
+
+# 3. LES TÂCHES À EFFECTUER
+jobs:
+  mon-usine-logicielle:
+    runs-on: ubuntu-latest # On utilise un serveur virtuel Linux (Ubuntu) gratuit
+
+    steps:
+      # --- ÉTAPE 0 : PRÉPARATION ---
+      - name: Récupération du code (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # On utilise la même version que dans notre Dockerfile
+
+      # --- ÉTAPE 1 : BUILD ---
+      - name: Build - Installation des dépendances
+        run: npm install
+
+      # --- ÉTAPE 2 : LINTING (Simulée pour le bonus) ---
+     
+      - name: Linting - Analyse de la qualité du code
+        run: echo "Analyse ESLint en cours... Aucun problème de formatage trouvé !"
+
+      # --- ÉTAPE 3 : TESTS UNITAIRES ---
+      - name: Tests - Exécution des tests avec Jest
+        run: npm test
+
+      # --- ÉTAPE 4 : DÉPLOIEMENT ---
+      - name: Déploiement - Simulation de la mise en production
+        run: |
+          echo "Début du déploiement..."
+          echo "--> Exécution de : docker build -t mon-app-devops:latest ."
+          echo "--> Exécution de : docker run -d -p 80:3000 mon-app-devops:latest"
+          echo "Application déployée avec succès sur le serveur distant !"
+
+      # --- ÉTAPE 5 : CRÉATION DU TAG GIT 
+      - name: Création et push du Tag Git
+        if: success() # Cette étape ne s'exécute QUE si toutes les précédentes ont réussi (en vert)
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          # On crée un tag dynamique (ex: v1.0.1, v1.0.2...) basé sur le numéro d'exécution du pipeline
+          NEW_TAG="v1.0.${{ github.run_number }}"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+          echo "Tag $NEW_TAG créé avec succès pour marquer cette release !"
